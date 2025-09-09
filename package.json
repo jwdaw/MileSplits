@@ -5,15 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:analyze": "ANALYZE=true next build",
-    "export": "next build && next export",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "test:run": "vitest run",
-    "deploy": "npm run build && npm run export",
-    "deploy:test": "node scripts/deploy-test.js",
-    "deploy:vercel": "vercel --prod"
+    "test:run": "vitest run"
   },
   "dependencies": {
     "next": "14.2.32",
