@@ -6,19 +6,13 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for Vercel deployment
-  output: "export",
+  // Standard Next.js build for Vercel (not static export)
+  // output: "export", // Commented out to use standard Vercel deployment
 
-  // Disable image optimization for static export
+  // Image optimization (enabled for standard Vercel deployment)
   images: {
-    unoptimized: true,
+    unoptimized: false,
   },
-
-  // Ensure trailing slashes for static hosting
-  trailingSlash: true,
-
-  // Disable server-side features for static export
-  distDir: "out",
 
   // TypeScript configuration
   typescript: {
