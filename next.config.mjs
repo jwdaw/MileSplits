@@ -6,7 +6,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for broader hosting compatibility
+  // Enable static export for Vercel deployment
   output: "export",
 
   // Disable image optimization for static export
@@ -17,8 +17,8 @@ const nextConfig = {
   // Ensure trailing slashes for static hosting
   trailingSlash: true,
 
-  // Exclude test files from build
-  pageExtensions: ["js", "jsx", "ts", "tsx"],
+  // Disable server-side features for static export
+  distDir: "out",
 
   // TypeScript configuration
   typescript: {
