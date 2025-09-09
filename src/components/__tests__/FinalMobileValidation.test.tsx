@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Home from "@/app/page";
 import { Stopwatch } from "../Stopwatch";
-import { SplitButton } from "../SplitButton";
+// SplitButton import removed as it's not used in this test file
 import { RunnerTable } from "../RunnerTable";
 import { Runner } from "@/types";
 
@@ -169,8 +169,7 @@ describe("Final Mobile Testing and Optimization", () => {
       // Should have 16px font size to prevent iOS zoom
       expect(input).toHaveClass("text-base"); // 16px in Tailwind
 
-      // Check computed style
-      const computedStyle = window.getComputedStyle(input);
+      // Check inline style for iOS zoom prevention
       expect(input.style.fontSize).toBe("16px");
     });
 

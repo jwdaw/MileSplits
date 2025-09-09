@@ -82,7 +82,7 @@ describe("Mobile Device Simulation Tests", () => {
     });
 
     it("maintains touch target sizes across all iPhone sizes", () => {
-      Object.entries(IPHONE_VIEWPORTS).forEach(([deviceName, viewport]) => {
+      Object.entries(IPHONE_VIEWPORTS).forEach(([_deviceName, viewport]) => {
         Object.defineProperty(window, "innerWidth", {
           value: viewport.width,
         });

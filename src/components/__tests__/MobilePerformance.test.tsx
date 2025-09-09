@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import Home from "@/app/page";
 import { RunnerTable } from "../RunnerTable";
@@ -189,7 +183,7 @@ describe("Mobile Performance Tests", () => {
       const startTime = performance.now();
 
       // This would normally trigger localStorage save
-      largeRunnerSet.forEach((runner, index) => {
+      largeRunnerSet.forEach((runner) => {
         const input = screen.getByPlaceholderText("Enter runner name");
         const addButton = screen.getByRole("button", { name: /add runner/i });
 
@@ -284,7 +278,10 @@ describe("Mobile Performance Tests", () => {
     it("performs well on simulated low-end mobile device", async () => {
       // Simulate slower device by adding artificial delay
       const originalSetTimeout = window.setTimeout;
-      window.setTimeout = ((callback: Function, delay: number) => {
+      window.setTimeout = ((
+        callback: (...args: unknown[]) => void,
+        delay: number
+      ) => {
         return originalSetTimeout(callback, delay * 1.5); // 50% slower
       }) as typeof setTimeout;
 
