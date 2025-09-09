@@ -1,101 +1,133 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
+import { Stopwatch } from "@/components/Stopwatch";
+import { RunnerTable } from "@/components/RunnerTable";
+import AddRunner from "@/components/AddRunner";
+import { useTimer } from "@/hooks/useTimer";
+import { Runner, SplitType } from "@/types";
+import {
+  saveSessionState,
+  loadSessionState,
+  clearSessionState,
+  isSessionRecent,
+} from "@/utils/localStorage";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [runners, setRunners] = useState<Runner[]>([]);
+  const [isSessionRestored, setIsSessionRestored] = useState(false);
+  const {
+    isRunning,
+    elapsedTime,
+    startTimer,
+    stopTimer,
+    restoreTimerState,
+    error,
+    clearError,
+  } = useTimer();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  // Handle adding a new runner
+  const handleAddRunner = useCallback((newRunner: Runner) => {
+    setRunners((prevRunners) => [...prevRunners, newRunner]);
+  }, []);
+
+  // Handle recording a split for a runner with error handling
+  const handleSplitRecord = useCallback(
+    (runnerId: string, splitType: SplitType, time: number) => {
+      try {
+        setRunners((prevRunners) =>
+          prevRunners.map((runner) =>
+            runner.id === runnerId
+              ? {
+                  ...runner,
+                  splits: {
+                    ...runner.splits,
+                    [splitType]: time,
+                  },
+                }
+              : runner
+          )
+        );
+      } catch (err) {
+        console.error("Failed to record split:", err);
+        throw new Error("Failed to record split");
+      }
+    },
+    []
+  );
+
+  // Restore session from localStorage on component mount
+  useEffect(() => {
+    const savedSession = loadSessionState();
+
+    if (savedSession && isSessionRecent(savedSession)) {
+      // Restore runners
+      setRunners(savedSession.runners);
+
+      // Restore timer state
+      restoreTimerState(savedSession.timerState);
+
+      console.log("Session restored from localStorage");
+    } else if (savedSession && !isSessionRecent(savedSession)) {
+      // Clear old session data
+      clearSessionState();
+      console.log("Old session data cleared");
+    }
+
+    setIsSessionRestored(true);
+  }, [restoreTimerState]);
+
+  // Auto-save session state when runners or timer state changes
+  useEffect(() => {
+    // Don't save until we've had a chance to restore the session
+    if (!isSessionRestored) {
+      return;
+    }
+
+    // Only save if there are runners or the timer has been used
+    if (runners.length > 0 || elapsedTime > 0) {
+      const timerState = {
+        isRunning,
+        elapsedTime,
+        startTime: isRunning ? Date.now() - elapsedTime : null,
+      };
+
+      const saveSuccess = saveSessionState(runners, timerState);
+      if (!saveSuccess) {
+        console.warn(
+          "Failed to save session state - data may be lost on page refresh"
+        );
+      }
+    }
+  }, [runners, isRunning, elapsedTime, isSessionRestored]);
+
+  return (
+    <div className="min-h-screen min-h-[100dvh] bg-gray-50 safe-area-left safe-area-right">
+      {/* Stopwatch at top of screen for mobile prominence */}
+      <div className="sticky top-0 z-10 safe-area-top">
+        <Stopwatch
+          isRunning={isRunning}
+          elapsedTime={elapsedTime}
+          onStart={startTimer}
+          onStop={stopTimer}
+          error={error}
+          onClearError={clearError}
+        />
+      </div>
+
+      {/* Main content area */}
+      <main className="p-4 space-y-4 pb-8 safe-area-bottom">
+        {/* Add Runner Component */}
+        <AddRunner runners={runners} onAddRunner={handleAddRunner} />
+
+        {/* Runner Table */}
+        <RunnerTable
+          runners={runners}
+          elapsedTime={elapsedTime}
+          isTimerRunning={isRunning}
+          onSplitRecord={handleSplitRecord}
+        />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
