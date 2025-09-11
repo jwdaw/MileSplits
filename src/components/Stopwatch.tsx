@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
+
 interface StopwatchProps {
   isRunning: boolean;
   elapsedTime: number;
   onStart: () => void;
   onStop: () => void;
+  onReset: () => void;
   error?: string | null;
   onClearError?: () => void;
 }
@@ -19,9 +22,12 @@ export function Stopwatch({
   elapsedTime,
   onStart,
   onStop,
+  onReset,
   error,
   onClearError,
 }: StopwatchProps) {
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   /**
    * Format elapsed time in MM:SS format
    * @param milliseconds - Time in milliseconds
@@ -45,8 +51,24 @@ export function Stopwatch({
     }
   };
 
+  const handleResetClick = () => {
+    setShowResetConfirm(true);
+  };
+
+  const handleResetConfirm = () => {
+    onReset();
+    setShowResetConfirm(false);
+    setResetSuccess(true);
+    // Clear success message after 3 seconds
+    setTimeout(() => setResetSuccess(false), 3000);
+  };
+
+  const handleResetCancel = () => {
+    setShowResetConfirm(false);
+  };
+
   return (
-    <div className="w-full bg-white border-b-2 border-gray-200 p-4 sm:p-6 shadow-sm">
+    <div className="w-full bg-white border-b-2 border-gray-200 p-2 sm:p-6 shadow-sm">
       {/* Error Display */}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -68,9 +90,53 @@ export function Stopwatch({
         </div>
       )}
 
+      {/* Success Display */}
+      {resetSuccess && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center">
+            <div className="text-green-600 mr-2">✅</div>
+            <p className="text-sm text-green-700">
+              Timer and all data successfully reset!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Confirmation Dialog */}
+      {showResetConfirm && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="text-center">
+            <div className="text-yellow-600 text-2xl mb-2">⚠️</div>
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+              Reset Timer?
+            </h3>
+            <p className="text-sm text-yellow-700 mb-4">
+              This will clear the timer and all runner data. This action cannot
+              be undone.
+            </p>
+            <div className="flex justify-center space-x-3">
+              <button
+                onClick={handleResetCancel}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResetConfirm}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                type="button"
+              >
+                Reset All Data
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Timer Display */}
-      <div className="text-center mb-4 sm:mb-6">
-        <div className="text-4xl sm:text-6xl font-mono font-bold text-gray-800 mb-2 leading-tight">
+      <div className="text-center mb-2 sm:mb-6">
+        <div className="text-2xl sm:text-6xl font-mono font-bold text-gray-800 mb-1 sm:mb-2 leading-tight">
           {formatTime(elapsedTime)}
         </div>
         <div className="text-base sm:text-lg text-gray-600">
@@ -78,12 +144,12 @@ export function Stopwatch({
         </div>
       </div>
 
-      {/* Start/Stop Button */}
-      <div className="flex justify-center">
+      {/* Start/Stop and Reset Buttons */}
+      <div className="flex justify-center items-center space-x-4">
         <button
           onClick={handleButtonClick}
           className={`
-            w-28 h-28 sm:w-32 sm:h-32 rounded-full text-xl sm:text-2xl font-bold text-white
+            w-16 h-16 sm:w-32 sm:h-32 rounded-full text-lg sm:text-2xl font-bold text-white
             transition-all duration-200 ease-in-out
             active:scale-95 focus:outline-none focus:ring-4
             touch-target
@@ -100,6 +166,23 @@ export function Stopwatch({
           disabled={!!error}
         >
           {isRunning ? "STOP" : "START"}
+        </button>
+
+        {/* Reset Button */}
+        <button
+          onClick={handleResetClick}
+          className="
+            w-12 h-12 sm:w-16 sm:h-16 rounded-full text-sm sm:text-base font-bold text-white
+            bg-gray-500 hover:bg-gray-600 focus:ring-gray-300 shadow-lg shadow-gray-200
+            transition-all duration-200 ease-in-out
+            active:scale-95 focus:outline-none focus:ring-4
+            touch-target
+          "
+          type="button"
+          aria-label="Reset timer and clear all data"
+          disabled={!!error || showResetConfirm}
+        >
+          RESET
         </button>
       </div>
     </div>

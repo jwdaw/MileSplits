@@ -109,3 +109,23 @@
   - Validate touch interactions and responsive behavior
   - Ensure fast loading and smooth real-time updates
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 6.1, 6.3_
+
+## Post-Deployment Improvements
+
+- [x] 15. Optimize stopwatch size and mobile layout priority
+
+  - Reduce stopwatch button size from 112px to 64px for better mobile space utilization
+  - Decrease timer display font size from text-4xl to text-2xl on mobile
+  - Minimize stopwatch container padding to prioritize runner splits visibility
+  - Ensure timer remains easily accessible but doesn't dominate mobile viewport
+  - Test layout with 8+ runners to verify splits remain prominently visible
+  - _Requirements: 4.1, 4.3, 6.1, 6.3_
+
+- [x] 16. Add timer reset and session management functionality
+  - Add "Reset" button to stopwatch component for clearing timer and all data
+  - Implement confirmation dialog to prevent accidental race data loss
+  - Clear localStorage session data when reset is confirmed
+  - Reset all runner splits and timer state to initial values
+  - Add visual feedback for successful reset operation
+  - Test reset functionality preserves app performance and responsiveness
+  - _Requirements: 2.5, 6.2, 6.4_

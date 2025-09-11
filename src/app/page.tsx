@@ -21,6 +21,7 @@ export default function Home() {
     elapsedTime,
     startTimer,
     stopTimer,
+    resetTimer,
     restoreTimerState,
     error,
     clearError,
@@ -55,6 +56,25 @@ export default function Home() {
     },
     []
   );
+
+  // Handle resetting all data
+  const handleReset = useCallback(() => {
+    try {
+      // Clear all runners
+      setRunners([]);
+
+      // Reset timer state
+      resetTimer();
+
+      // Clear localStorage session data
+      clearSessionState();
+
+      console.log("All data successfully reset");
+    } catch (err) {
+      console.error("Failed to reset data:", err);
+      throw new Error("Failed to reset data");
+    }
+  }, [resetTimer]);
 
   // Restore session from localStorage on component mount
   useEffect(() => {
@@ -110,6 +130,7 @@ export default function Home() {
           elapsedTime={elapsedTime}
           onStart={startTimer}
           onStop={stopTimer}
+          onReset={handleReset}
           error={error}
           onClearError={clearError}
         />

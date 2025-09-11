@@ -73,3 +73,28 @@ A mobile-friendly web application designed for cross country coaches to track in
 2. WHEN I use the app THEN all primary functions SHALL be accessible with single taps
 3. WHEN timing is active THEN the most important information SHALL be prominently displayed
 4. WHEN I make an error THEN the system SHALL provide clear feedback without disrupting the timing session
+
+## Post-Deployment Requirements (Based on Real-World Usage)
+
+### Requirement 7
+
+**User Story:** As a cross country coach, I want the stopwatch to be compact and not dominate my mobile screen, so that I can see runner splits without scrolling during races.
+
+#### Acceptance Criteria
+
+1. WHEN I view the app on mobile THEN the stopwatch SHALL occupy minimal vertical space while remaining easily accessible
+2. WHEN I have 8+ runners added THEN the runner splits SHALL be visible without scrolling on standard mobile devices
+3. WHEN I use the app during a race THEN the split recording buttons SHALL be the primary visual focus
+4. WHEN I interact with the stopwatch THEN it SHALL maintain minimum 44px touch targets for accessibility
+
+### Requirement 8
+
+**User Story:** As a cross country coach, I want to reset the timer and clear all data between races, so that I can use the app for multiple races without browser refresh.
+
+#### Acceptance Criteria
+
+1. WHEN I finish timing a race THEN the system SHALL provide a reset option to clear all data
+2. WHEN I initiate a reset THEN the system SHALL ask for confirmation to prevent accidental data loss
+3. WHEN I confirm a reset THEN the system SHALL clear the timer, all runners, and localStorage data
+4. WHEN a reset is complete THEN the system SHALL return to the initial app state ready for a new race
+5. WHEN I reset the app THEN the system SHALL provide visual feedback confirming the reset was successful
