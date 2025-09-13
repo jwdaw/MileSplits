@@ -145,14 +145,14 @@ export function Stopwatch({
       </div>
 
       {/* Start/Stop and Reset Buttons */}
-      <div className="flex justify-center items-center space-x-4">
+      <div className="flex justify-center items-center space-x-3">
         <button
           onClick={handleButtonClick}
           className={`
-            w-16 h-16 sm:w-32 sm:h-32 rounded-full text-lg sm:text-2xl font-bold text-white
+            px-6 py-3 sm:px-8 sm:py-4 rounded-lg text-base sm:text-xl font-bold text-white
             transition-all duration-200 ease-in-out
             active:scale-95 focus:outline-none focus:ring-4
-            touch-target
+            touch-target min-w-[80px] sm:min-w-[120px]
             ${
               error
                 ? "bg-gray-400 cursor-not-allowed"
@@ -172,11 +172,11 @@ export function Stopwatch({
         <button
           onClick={handleResetClick}
           className="
-            w-12 h-12 sm:w-16 sm:h-16 rounded-full text-sm sm:text-base font-bold text-white
+            px-4 py-3 sm:px-6 sm:py-4 rounded-lg text-sm sm:text-base font-bold text-white
             bg-gray-500 hover:bg-gray-600 focus:ring-gray-300 shadow-lg shadow-gray-200
             transition-all duration-200 ease-in-out
             active:scale-95 focus:outline-none focus:ring-4
-            touch-target
+            touch-target min-w-[60px] sm:min-w-[80px]
           "
           type="button"
           aria-label="Reset timer and clear all data"

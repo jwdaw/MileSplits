@@ -80,3 +80,19 @@ export interface RunnerRowProps {
   isTimerRunning: boolean;
   onSplitRecord: (runnerId: string, splitType: SplitType, time: number) => void;
 }
+
+// Roster management types
+export interface Roster {
+  id: string;
+  name: string;
+  description?: string;
+  runners: string[]; // Array of runner names
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface RosterFormData {
+  name: string;
+  description?: string;
+  runners: string[];
+}

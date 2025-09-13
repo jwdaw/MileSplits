@@ -129,3 +129,28 @@
   - Add visual feedback for successful reset operation
   - Test reset functionality preserves app performance and responsiveness
   - _Requirements: 2.5, 6.2, 6.4_
+
+## New Feature Enhancements
+
+- [x] 17. Implement PDF export functionality for race results
+
+  - Create PDF export button in the main interface for generating race reports
+  - Design PDF layout with race summary, runner names, and split times in tabular format
+  - Include race timestamp, total runners, and formatted split times (MM:SS)
+  - Add export functionality that works on mobile devices and desktop browsers
+  - Implement client-side PDF generation using jsPDF or similar library
+  - Style PDF output for professional race documentation and coach records
+  - Test PDF generation with various runner counts and split combinations
+  - _Requirements: New requirement for race documentation and record keeping_
+
+- [x] 18. Create roster management system with persistent storage
+  - Build new roster page (/roster) for managing saved runner lists
+  - Implement roster creation form with ability to add multiple runners at once
+  - Add roster naming and description fields for organizing different teams/events
+  - Store roster data in localStorage with proper data validation and error handling
+  - Create roster selection interface on main page for quick race setup
+  - Add roster editing capabilities (add/remove runners, rename roster)
+  - Implement roster deletion with confirmation dialog
+  - Add navigation between main timer page and roster management page
+  - Test roster persistence across browser sessions and data integrity
+  - _Requirements: New requirement for team management and race preparation efficiency_

@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Stopwatch } from "@/components/Stopwatch";
 import { RunnerTable } from "@/components/RunnerTable";
 import AddRunner from "@/components/AddRunner";
+import { ExportButton } from "@/components/ExportButton";
 import { useTimer } from "@/hooks/useTimer";
 import { Runner, SplitType } from "@/types";
+import { getRosterById } from "@/utils/rosterStorage";
 import {
   saveSessionState,
   loadSessionState,
@@ -14,8 +18,10 @@ import {
 } from "@/utils/localStorage";
 
 export default function Home() {
+  const searchParams = useSearchParams();
   const [runners, setRunners] = useState<Runner[]>([]);
   const [isSessionRestored, setIsSessionRestored] = useState(false);
+  const [rosterLoadError, setRosterLoadError] = useState<string | null>(null);
   const {
     isRunning,
     elapsedTime,
@@ -31,6 +37,36 @@ export default function Home() {
   const handleAddRunner = useCallback((newRunner: Runner) => {
     setRunners((prevRunners) => [...prevRunners, newRunner]);
   }, []);
+
+  // Handle loading roster from URL parameter
+  const loadRosterFromUrl = useCallback(() => {
+    const rosterId = searchParams.get("roster");
+    if (!rosterId) return;
+
+    try {
+      const roster = getRosterById(rosterId);
+      if (roster) {
+        // Convert roster runner names to Runner objects
+        const rosterRunners: Runner[] = roster.runners.map((name, index) => ({
+          id: `roster-runner-${Date.now()}-${index}`,
+          name: name,
+          splits: {},
+        }));
+
+        setRunners(rosterRunners);
+        console.log(
+          `Loaded roster "${roster.name}" with ${roster.runners.length} runners`
+        );
+      } else {
+        setRosterLoadError(`Roster not found`);
+        setTimeout(() => setRosterLoadError(null), 5000);
+      }
+    } catch (error) {
+      console.error("Failed to load roster:", error);
+      setRosterLoadError("Failed to load roster");
+      setTimeout(() => setRosterLoadError(null), 5000);
+    }
+  }, [searchParams]);
 
   // Handle recording a split for a runner with error handling
   const handleSplitRecord = useCallback(
@@ -78,24 +114,34 @@ export default function Home() {
 
   // Restore session from localStorage on component mount
   useEffect(() => {
-    const savedSession = loadSessionState();
+    // Check if we should load a roster from URL first
+    const rosterId = searchParams.get("roster");
 
-    if (savedSession && isSessionRecent(savedSession)) {
-      // Restore runners
-      setRunners(savedSession.runners);
+    if (rosterId) {
+      // Load roster instead of session
+      loadRosterFromUrl();
+      setIsSessionRestored(true);
+    } else {
+      // Normal session restoration
+      const savedSession = loadSessionState();
 
-      // Restore timer state
-      restoreTimerState(savedSession.timerState);
+      if (savedSession && isSessionRecent(savedSession)) {
+        // Restore runners
+        setRunners(savedSession.runners);
 
-      console.log("Session restored from localStorage");
-    } else if (savedSession && !isSessionRecent(savedSession)) {
-      // Clear old session data
-      clearSessionState();
-      console.log("Old session data cleared");
+        // Restore timer state
+        restoreTimerState(savedSession.timerState);
+
+        console.log("Session restored from localStorage");
+      } else if (savedSession && !isSessionRecent(savedSession)) {
+        // Clear old session data
+        clearSessionState();
+        console.log("Old session data cleared");
+      }
+
+      setIsSessionRestored(true);
     }
-
-    setIsSessionRestored(true);
-  }, [restoreTimerState]);
+  }, [restoreTimerState, loadRosterFromUrl, searchParams]);
 
   // Auto-save session state when runners or timer state changes
   useEffect(() => {
@@ -138,6 +184,36 @@ export default function Home() {
 
       {/* Main content area */}
       <main className="p-4 space-y-4 pb-8 safe-area-bottom">
+        {/* Navigation Header */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-lg font-semibold text-gray-900">
+                Cross Country Timer
+              </h1>
+              <p className="text-sm text-gray-600">
+                Track runner splits during races
+              </p>
+            </div>
+            <Link
+              href="/roster"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+            >
+              Manage Rosters
+            </Link>
+          </div>
+        </div>
+
+        {/* Roster Load Error */}
+        {rosterLoadError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="text-red-600 mr-2">⚠️</div>
+              <p className="text-sm text-red-700">{rosterLoadError}</p>
+            </div>
+          </div>
+        )}
+
         {/* Add Runner Component */}
         <AddRunner runners={runners} onAddRunner={handleAddRunner} />
 
@@ -147,6 +223,13 @@ export default function Home() {
           elapsedTime={elapsedTime}
           isTimerRunning={isRunning}
           onSplitRecord={handleSplitRecord}
+        />
+
+        {/* Export Button */}
+        <ExportButton
+          runners={runners}
+          elapsedTime={elapsedTime}
+          isTimerRunning={isRunning}
         />
       </main>
     </div>

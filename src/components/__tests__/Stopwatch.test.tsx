@@ -215,7 +215,8 @@ describe("Stopwatch", () => {
       render(<Stopwatch {...defaultProps} />);
 
       const startButton = screen.getByRole("button", { name: "Start timer" });
-      expect(startButton).toHaveClass("w-16", "h-16");
+      expect(startButton).toHaveClass("touch-target");
+      expect(startButton).toHaveClass("min-w-[80px]");
     });
 
     it("has proper focus styles", () => {
@@ -430,8 +431,8 @@ describe("Stopwatch", () => {
         name: "Reset timer and clear all data",
       });
       expect(resetButton).toHaveClass("bg-gray-500");
-      expect(resetButton).toHaveClass("w-12", "h-12");
-      expect(resetButton).toHaveClass("rounded-full");
+      expect(resetButton).toHaveClass("min-w-[60px]");
+      expect(resetButton).toHaveClass("rounded-lg");
     });
 
     it("success message disappears after timeout", async () => {
